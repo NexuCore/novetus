@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOVETUS - Map Archive</title>
+    <style>
+        /* 1. Slow/Smooth Scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* 2. Custom Retro Scrollbar (Webkit browsers) */
+        ::-webkit-scrollbar {
+            width: 12px; /* Set a standard retro width */
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #F0F0F0; /* Light gray track */
+            border-left: 1px solid #C0C0C0;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #A0A0A0; /* Gray thumb */
+            border: 1px solid #777777; /* Dark border for definition */
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: #888888;
+        }
+        
+        /* Minimal Retro Aesthetic */
+        body {
+            /* 3. Background Image: New Roblox Stud Texture */
+            background-image: url('https://tr.rbxcdn.com/180DAY-7a08aac3c46b12a65380007ecc18c9f4/420/420/Decal/Webp/noFilter');
+            background-repeat: repeat; /* Allows the texture to tile/spread */
+            background-size: 50px 50px; /* Kept the smaller size for now */
+            background-position: center top; /* Initial position for parallax */
+            background-color: #50C878; /* Updated: Emerald Green base color */
+            
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 10pt;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        a {
+            color: #0066CC;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Main Container - Responsive Width, Centered */
+        #container {
+            max-width: 970px; /* Max fixed width */
+            width: 95%; /* Fluid width for mobile responsiveness */
+            margin: 0 auto;
+            padding: 10px 0;
+        }
+
+        /* Header / Navigation Bar */
+        #header {
+            background-color: #FFFFFF;
+            border: 1px solid #AFAFAF;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        /* New Logo Style */
+        .header-logo {
+            padding-right: 20px;
+        }
+
+        .header-logo img {
+            height: 30px; /* Adjust height for the logo */
+            width: auto;
+            vertical-align: middle;
+        }
+        
+        /* Spacing for Navigation Links */
+        #header a:not(.header-logo) {
+            margin-right: 15px; /* Add space between links */
+            color: #777;
+            font-weight: bold;
+        }
+
+        /* Content Layout */
+        #content-area {
+            display: grid;
+            grid-template-columns: 1fr 2fr; /* Simplified grid ratio */
+            gap: 10px;
+        }
+        
+        @media (max-width: 700px) {
+            #content-area {
+                grid-template-columns: 1fr; /* Stack columns on small screens */
+            }
+        }
+
+        /* Standard Content Box Style */
+        .content-box {
+            background-color: #FFFFFF;
+            border: 1px solid #AFAFAF;
+            margin-bottom: 10px;
+        }
+
+        .box-header {
+            background-color: #DDDDDD;
+            border-bottom: 1px solid #AFAFAF;
+            padding: 5px 10px;
+            font-size: 11pt;
+            font-weight: bold;
+            color: #555555;
+        }
+        
+        /* Fun Fact Box Specific Style - UPDATED */
+        #fun-fact-box {
+            background-color: #EFCC00; /* Requested yellow color */
+            border: 1px solid #AFAFAF;
+            margin-bottom: 10px;
+            padding: 10px; /* Add padding directly to the box */
+            text-align: center; /* Center the text */
+        }
+        .fun-fact-text {
+            font-size: 10pt; /* Smaller text size */
+            font-weight: normal; /* Revert to normal weight */
+            color: #000000; /* Black text */
+            font-style: italic; /* The 'old font thing' (italic) */
+            margin: 0; /* Remove default paragraph margins */
+        }
+
+        /* Left Column Content */
+        .info-block {
+            padding: 10px;
+        }
+        .info-block p, .info-block ul {
+            margin-top: 0;
+        }
+        .info-block ul {
+            list-style: none;
+            padding: 0;
+        }
+        .info-block ul li {
+            padding: 3px 0;
+            font-size: 9pt;
+        }
+
+
+        /* Right Column (Map Listings) */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .game-thumb {
+            border: 1px solid #AFAFAF;
+            background-color: #F8F8F8;
+            padding: 5px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .game-image {
+            width: 100%;
+            height: 90px;
+            margin-bottom: 5px;
+            border: 1px solid #999; 
+            overflow: hidden;
+        }
+
+        .game-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .game-title {
+            font-size: 9pt;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .map-meta {
+             font-size: 8pt; 
+             color: #666;
+             line-height: 1.3; /* Ensure spacing for multiple meta lines */
+        }
+
+        .download-button {
+            background-color: #00AA00;
+            color: #FFFFFF;
+            font-size: 9pt;
+            font-weight: bold;
+            padding: 4px 8px;
+            margin-top: 5px;
+            border: 1px solid #008800;
+            cursor: pointer;
+            transition: background-color 0.1s;
+        }
+        
+        .download-button:hover {
+            background-color: #00BB00;
+        }
+        
+        .loading-message {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 30px;
+            color: #777;
+        }
+
+        /* Footer with White Frame */
+        #footer {
+            background-color: #FFFFFF; /* White background */
+            border: 1px solid #AFAFAF; /* Frame border */
+            text-align: center;
+            font-size: 8pt;
+            color: #666;
+            padding: 10px 0; /* Reduced vertical padding */
+            margin-top: 10px; /* Space above footer */
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="container">
+
+        <!-- HEADER / NAVIGATION --><div id="header">
+            <a href="#" class="header-logo">
+                 <img src="https://img.itch.zone/aW1nLzQ1NDEwOTUucG5n/original/hZZ7X7.png" alt="NOVETUS Logo">
+            </a>
+            <a href="#">Home</a>
+            <a href="#">Maps</a>
+            <a href="#">Client Download</a>
+            <a href="#">Info</a>
+        </div>
+        
+        <!-- FUN FACT BOX - UPDATED --><div id="fun-fact-box">
+            <p id="fact-display" class="fun-fact-text">
+                Loading fun fact...
+            </p>
+        </div>
+
+        <!-- MAIN CONTENT AREA --><div id="content-area">
+
+            <!-- LEFT COLUMN (Info & Update Logs) --><div id="left-column">
+
+                <!-- Client Information Pane --><div id="client-info-pane" class="content-box info-block">
+                    <div class="box-header">Client Notice</div>
+                    <p style="font-weight: bold; color: #CC0000;">
+                        Welcome to the Map Archive!
+                    </p>
+                    <p>All maps are compatible with Novetus v1.3+ clients. No account required.</p>
+                </div>
+
+                <!-- Update Logs --><div id="update-logs-pane" class="content-box info-block">
+                    <div class="box-header">Update Logs</div>
+                    <ul>
+                        <li><span style="color: #CC0000; font-weight: bold;">[2024-11-28]</span> Server 3 fixed, new maps added.</li>
+                        <li><span style="color: #0066CC;">[2024-11-20]</span> Maintenance completed. Download links restored.</li>
+                        <li>[2024-11-15] Added support for 2008-era maps.</li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <!-- RIGHT COLUMN (Map Listings) --><div id="right-column">
+
+                <!-- Popular Maps --><div id="popular-maps-pane" class="content-box">
+                    <!-- Renamed section header to reflect that this is the top tier of maps --><div class="box-header">Featured Maps (Top Downloads)</div>
+                    <div class="games-grid" id="popular-maps-grid">
+                        <div class="loading-message">Loading map data...</div>
+                    </div>
+                </div>
+
+                <!-- Newest Maps --><div id="newest-maps-pane" class="content-box">
+                    <div class="box-header">Newest Maps Added</div>
+                    <div class="games-grid" id="newest-maps-grid">
+                         <div class="loading-message">Loading map data...</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- FOOTER --><div id="footer">
+            This is a fan-made Novetus Map Archive and is not affiliated with or endorsed by the official Novetus creators. &copy; 2024.
+        </div>
+
+    </div>
+
+    <!-- FIREBASE AND JAVASCRIPT LOGIC --><script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, updateDoc, onSnapshot, collection, query, increment, orderBy, limit, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        
+        // Set log level to debug for better console output
+        setLogLevel('Debug');
+
+        // --- GLOBAL VARIABLES (provided by the environment) ---
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : undefined;
+
+        let db;
+        let auth;
+        let isAuthReady = false;
+
+        // Path to the public map collection
+        const MAPS_COLLECTION_PATH = `/artifacts/${appId}/public/data/maps`;
+
+        // Mock Map Data for Initial Seed (Now includes ownerName, minRenderVersion, and novetusVersion)
+        const initialMaps = [
+            { id: "crossroads_2007", title: "Crossroads (2007)", downloads: 4512, dateAdded: new Date(2024, 10, 1), ownerName: "Novetus Staff", imageUrl: "https://placehold.co/100x90/444444/FFFFFF?text=CROSSROADS", minRenderVersion: "2007M", novetusVersion: "Stable" },
+            { id: "doomspire", title: "Doomspire Brickbattle", downloads: 3981, dateAdded: new Date(2024, 10, 5), ownerName: "User_12345", imageUrl: "https://placehold.co/100x90/AA0000/FFFFFF?text=DOMINION", minRenderVersion: "2009E", novetusVersion: "Stable" },
+            { id: "temple_moon", title: "Temple of the Moon", downloads: 2755, dateAdded: new Date(2024, 10, 10), ownerName: "RetroBuilder", imageUrl: "https://placehold.co/100x90/5D7A94/FFFFFF?text=TEMPLE", minRenderVersion: "2008M", novetusVersion: "Snapshot" },
+            { id: "rocket_arena_v1", title: "Rocket Arena (v1.2)", downloads: 990, dateAdded: new Date(2024, 11, 27), ownerName: "Novetus Staff", imageUrl: "https://placehold.co/100x90/0066CC/FFFFFF?text=ROCKET+ARENA", boxStyle: "background-color: #E6F0FF;", minRenderVersion: "2011E", novetusVersion: "Stable" },
+            { id: "happy_home", title: "Happy Home in Robloxia", downloads: 1200, dateAdded: new Date(2024, 11, 25), ownerName: "ArchitectBob", imageUrl: "https://placehold.co/100x90/999999/FFFFFF?text=HOME", minRenderVersion: "2006S", novetusVersion: "Stable" },
+            { id: "classic_paintball", title: "Classic Paintball!", downloads: 850, dateAdded: new Date(2024, 11, 20), ownerName: "PaintBaller01", imageUrl: "https://placehold.co/100x90/00AA00/FFFFFF?text=PAINTBALL", minRenderVersion: "2010L", novetusVersion: "Snapshot" }
+        ];
+
+        // --- AUTHENTICATION AND INITIALIZATION ---
+        const initializeFirebase = async () => {
+            if (Object.keys(firebaseConfig).length === 0) {
+                console.error("Firebase config is missing. Cannot initialize Firestore.");
+                return;
+            }
+
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+
+            try {
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                console.log("Firebase Auth successful.");
+                isAuthReady = true;
+            } catch (error) {
+                console.error("Firebase Auth failed:", error);
+            }
+
+            // After authentication, start listening for data
+            if (isAuthReady) {
+                // IMPORTANT: Await seeding to ensure initial data is there before listeners start
+                await seedInitialData(); 
+                setupRealTimeListeners();
+            }
+        };
+
+        // --- DATA SEEDING (Ensure maps exist for the first run) ---
+        const seedInitialData = async () => {
+             console.log("Attempting to seed initial map data if needed...");
+             // Iterate through maps sequentially to ensure proper seeding before listeners fire
+            for (const map of initialMaps) {
+                const mapRef = doc(db, MAPS_COLLECTION_PATH, map.id);
+                try {
+                    const docSnap = await getDoc(mapRef);
+                    if (!docSnap.exists()) {
+                        // Document does not exist, so create it completely, including the new fields.
+                        console.log(`Seeding new map: ${map.title}`);
+                        await setDoc(mapRef, map); 
+                    } else {
+                        console.log(`Map already exists: ${map.title}. Skipping seed.`);
+                    }
+                } catch (e) {
+                    console.error("Error seeding map data:", e);
+                }
+            }
+        };
+
+        // --- UTILITY FUNCTIONS ---
+        const formatDate = (timestamp) => {
+            if (!timestamp) return 'N/A';
+            // Firestore timestamps need to be converted to Date objects first
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return date.toLocaleDateString('en-US', options);
+        };
+
+
+        // --- REAL-TIME DATA LISTENING ---
+        const setupRealTimeListeners = () => {
+            const mapsRef = collection(db, MAPS_COLLECTION_PATH);
+
+            // 1. Popular Maps (Ordered by downloads, descending)
+            const popularQuery = query(mapsRef, orderBy('downloads', 'desc'), limit(3));
+            onSnapshot(popularQuery, (snapshot) => {
+                const popularMaps = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderMaps(popularMaps, 'popular-maps-grid');
+            }, (error) => console.error("Error loading popular maps:", error));
+
+            // 2. Newest Maps (Ordered by dateAdded, descending)
+            const newestQuery = query(mapsRef, orderBy('dateAdded', 'desc'), limit(3));
+            onSnapshot(newestQuery, (snapshot) => {
+                const newestMaps = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderMaps(newestMaps, 'newest-maps-grid');
+            }, (error) => console.error("Error loading newest maps:", error));
+        };
+
+        // --- UI RENDERING (Updated to show Creator, Min Version, Novetus Client, and Added date) ---
+        const renderMaps = (maps, gridId) => {
+            const grid = document.getElementById(gridId);
+            if (!grid) return;
+
+            grid.innerHTML = ''; // Clear previous content
+
+            if (maps.length === 0) {
+                 grid.innerHTML = '<div class="loading-message">No maps found.</div>';
+                 return;
+            }
+
+            maps.forEach(map => {
+                const formattedDate = formatDate(map.dateAdded);
+                const ownerName = map.ownerName || 'Unknown Creator';
+                // New Fields
+                const minRenderVersion = map.minRenderVersion || 'N/A';
+                const novetusVersion = map.novetusVersion || 'N/A';
+                
+                const mapElement = document.createElement('div');
+                mapElement.className = 'game-thumb';
+                if (map.boxStyle) {
+                    mapElement.style.cssText = map.boxStyle;
+                }
+                
+                mapElement.innerHTML = `
+                    <a href="#">
+                        <div class="game-image">
+                            <img src="${map.imageUrl}" alt="${map.title} Thumbnail" onerror="this.onerror=null; this.src='https://placehold.co/100x90/CCCCCC/666666?text=NO+IMG';">
+                        </div>
+                        <span class="game-title">${map.title}</span>
+                    </a>
+                    <!-- Display Owner Name --><span class="map-meta">Creator: <span style="font-weight: bold;">${ownerName}</span></span>
+                    
+                    <!-- New: Minimum Rendering Version --><span class="map-meta">Min Version: <span style="font-weight: bold;">${minRenderVersion}</span></span>
+                    <!-- New: Required Novetus Version --><span class="map-meta">Client Type: <span style="font-weight: bold;">${novetusVersion}</span></span>
+
+                    <!-- Display Release Date --><span class="map-meta">Added: <span style="font-weight: bold;">${formattedDate}</span></span>
+                    <!-- The download button remains functional --><div class="download-button" data-map-id="${map.id}">Download .rbxl</div>
+                `;
+                grid.appendChild(mapElement);
+            });
+            
+            // Re-attach listeners to the dynamically created buttons
+            attachDownloadListeners();
+        };
+
+
+        // --- DOWNLOAD LOGIC ---
+        const attachDownloadListeners = () => {
+            document.querySelectorAll('.download-button').forEach(button => {
+                // Remove existing listener to prevent duplicates from onSnapshot rendering
+                button.onclick = null; 
+                
+                button.onclick = (e) => {
+                    e.preventDefault(); // Prevent default link behavior, though it's a div
+                    const mapId = button.getAttribute('data-map-id');
+                    handleDownload(mapId);
+                };
+            });
+        };
+
+        const handleDownload = async (mapId) => {
+            if (!isAuthReady) {
+                console.warn("Authentication not ready. Cannot process download.");
+                return;
+            }
+            
+            // 1. Increment the download counter in Firestore
+            const mapRef = doc(db, MAPS_COLLECTION_PATH, mapId);
+            try {
+                await updateDoc(mapRef, {
+                    downloads: increment(1)
+                });
+                console.log(`Download count for ${mapId} incremented successfully.`);
+            } catch (e) {
+                console.error("Error updating download count:", e);
+                // Fallback UI message instead of alert()
+                const button = document.querySelector(`.download-button[data-map-id="${mapId}"]`);
+                if (button) {
+                     button.textContent = "Error! Try again.";
+                     setTimeout(() => button.textContent = "Download .rbxl", 2000);
+                }
+                return;
+            }
+
+            // 2. Simulate the file download (The actual file is not hosted here, so we simulate the click)
+            const tempLink = document.createElement('a');
+            const mapName = mapId.replace(/_/g, '-');
+            tempLink.href = `https://example.com/novetus-maps/${mapName}.rbxl`; 
+            tempLink.download = `${mapName}.rbxl`;
+            document.body.appendChild(tempLink);
+            tempLink.click();
+            document.body.removeChild(tempLink);
+
+            // The onSnapshot listener will automatically update the UI after the updateDoc call succeeds.
+        };
+
+        // --- FUN FACTS LOGIC ---
+        const sillyFacts = [
+            "The opposite of vanilla is chocolate.",
+            "The 2007 client had a sound effect for when a player walked over grass that nobody could ever find in the assets.",
+            "Did you know the official name for a Robloxian is 'Blockhead'?",
+            "The Novetus client used to include a joke map based on a famous internet meme!",
+            "In early versions, pressing 'F3' would instantly crash the game client. Don't try it!",
+            "The first version of the 'Crossroads' map only had 10 bricks, but they were very important bricks.",
+            "The 'Noob' skin texture is technically called 'Teal'."
+        ];
+
+        const factDisplayElement = document.getElementById('fact-display');
+
+        const displayRandomFact = () => {
+            if (!factDisplayElement) return;
+            const randomIndex = Math.floor(Math.random() * sillyFacts.length);
+            factDisplayElement.textContent = sillyFacts[randomIndex];
+        };
+        
+        const startFactRotation = () => {
+            displayRandomFact(); // Display one immediately
+            // Rotate every 8 seconds
+            setInterval(displayRandomFact, 8000); 
+        };
+
+        // --- PARALLAX SCROLL LOGIC ---
+        const PARALLAX_FACTOR = 0.3; // 30% of scroll speed for slow movement
+
+        const handleParallaxScroll = () => {
+            // Get current scroll position
+            const scrollOffset = window.pageYOffset || document.documentElement.scrollTop;
+            
+            // Calculate the new Y position for the background, making it move slower than the content
+            const newY = -(scrollOffset * PARALLAX_FACTOR); 
+            
+            // Apply the new background position, keeping the X position centered
+            document.body.style.backgroundPosition = `center ${newY}px`;
+        };
+
+
+        // Initialize everything when the page loads
+        window.onload = function() {
+            initializeFirebase();
+            startFactRotation();
+            
+            // Start Parallax Scroll listener
+            handleParallaxScroll(); // Set initial position
+            window.addEventListener('scroll', handleParallaxScroll);
+        };
+
+    </script>
+</body>
+</html>
