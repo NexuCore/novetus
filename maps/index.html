@@ -334,18 +334,29 @@
         const handleDownload = (e) => {
             e.preventDefault(); 
             const button = e.currentTarget;
-            const mapId = button.getAttribute('data-map-id');
-            const mapName = mapId.replace(/_/g, '-');
             
-            // 1. Simulate the file download
+            // 1. Find the nearest ancestor map card (.game-thumb)
+            const gameThumb = button.closest('.game-thumb');
+            
+            // 2. Find the <a> tag which holds the correct download URL
+            const linkElement = gameThumb.querySelector('a');
+            
+            // 3. Use the correctly formed URL from the existing <a> tag's href
+            const correctDownloadUrl = linkElement.href;
+            
+            // 4. Use the game title for a cleaner local filename
+            const mapTitle = linkElement.querySelector('.game-title').textContent.trim();
+            const mapFileName = mapTitle + '.rbxl';
+            
+            // 5. Simulate the file download
             const tempLink = document.createElement('a');
-            tempLink.href = `https://example.com/novetus-maps/${mapName}.rbxl`; 
-            tempLink.download = `${mapName}.rbxl`;
+            tempLink.href = correctDownloadUrl; // *** FIX: Now points to the actual map file URL ***
+            tempLink.download = mapFileName;
             document.body.appendChild(tempLink);
             tempLink.click();
             document.body.removeChild(tempLink);
             
-            // 2. Give user feedback
+            // 6. Give user feedback
             const originalText = button.textContent;
             button.textContent = "Downloading...";
             setTimeout(() => {
