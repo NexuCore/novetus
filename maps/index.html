@@ -210,6 +210,30 @@
             color: #777;
         }
 
+        /* Form Styles for Suggest a Map */
+        .form-group {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            font-size: 10pt;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            min-width: 160px; /* Align labels */
+            margin-right: 10px;
+        }
+
+        .form-group input[type="text"],
+        .form-group select,
+        .form-group input[type="file"] { /* Added input[type="file"] */
+            flex-grow: 1;
+            padding: 3px;
+            border: 1px solid #AFAFAF;
+            font-size: 10pt;
+            max-width: 300px; /* Constrain width on large screens */
+        }
+        
         /* Footer with White Frame */
         #footer {
             background-color: #FFFFFF; /* White background */
@@ -257,6 +281,31 @@
             /* Center the map cards if only one is showing (which is unlikely but safe) */
             .games-grid {
                  justify-content: center;
+            }
+
+            /* Mobile adjustments for form */
+            .form-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .form-group label {
+                min-width: auto;
+                margin-right: 0;
+                margin-bottom: 2px;
+            }
+
+            .form-group input[type="text"],
+            .form-group select,
+            .form-group input[type="file"] {
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+
+            #submit-suggestion {
+                width: 100%;
+                box-sizing: border-box;
             }
         }
 
@@ -318,6 +367,61 @@
                     </div>
                 </div>
 
+                <!-- SUGGEST A MAP FORM (UPDATED) -->
+                <div id="suggest-map-pane" class="content-box">
+                    <div class="box-header">Suggest a New Map (All Fields Required)</div>
+                    <div style="padding: 10px;">
+                        <form id="map-suggestion-form">
+                            <!-- NEW USERNAME FIELD -->
+                            <div class="form-group">
+                                <label for="novetus-username">Novetus Username:</label>
+                                <input type="text" id="novetus-username" required placeholder="Your Novetus display name">
+                            </div>
+                            <!-- END NEW USERNAME FIELD -->
+                            <div class="form-group">
+                                <label for="map-name">Map Name:</label>
+                                <input type="text" id="map-name" required placeholder="e.g., Bloxburg Castle">
+                            </div>
+                            <div class="form-group">
+                                <label for="min-version">Minimum Roblox Version:</label>
+                                <select id="min-version" required>
+                                    <option value="" disabled selected>Select Minimum Version</option>
+                                    <option value="2006S">2006S</option>
+                                    <option value="2007E">2007E</option>
+                                    <option value="2007M">2007M</option>
+                                    <option value="2008M">2008M</option>
+                                    <option value="2009E">2009E</option>
+                                    <option value="2009E-HD">2009E-HD</option>
+                                    <option value="2009L">2009L</option>
+                                    <option value="2010L">2010L</option>
+                                    <option value="2011E">2011E</option>
+                                    <option value="2011M">2011M</option>
+                                    <option value="2012M">2012M</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="client-type">Novetus Client Type:</label>
+                                <select id="client-type" required>
+                                    <option value="" disabled selected>Select Client Type</option>
+                                    <option value="Stable">Stable</option>
+                                    <option value="Snapshot">Snapshot</option>
+                                    <!-- NEW CLIENT TYPE -->
+                                    <option value="Stable & Snapshot">Stable & Snapshot</option>
+                                    <!-- END NEW CLIENT TYPE -->
+                                </select>
+                            </div>
+                            <!-- REQUIRED FILE UPLOAD FIELD -->
+                            <div class="form-group">
+                                <label for="map-file">Upload .RBXL Map File (Max 8MB):</label>
+                                <input type="file" id="map-file" name="map-file" accept=".rbxl" required>
+                            </div>
+                            <!-- END REQUIRED FILE FIELD -->
+                            <button type="submit" id="submit-suggestion" class="download-button" style="margin-top: 10px;">Submit Suggestion</button>
+                            <p id="submission-message" style="margin-top: 10px; font-size: 9pt; color: #555;"></p>
+                        </form>
+                    </div>
+                </div>
+
 
             </div>
         </div>
@@ -328,16 +432,29 @@
 
     </div>
 
-    <!-- JAVASCRIPT LOGIC (Only for Fun Facts, Parallax, and Download Simulation) --><script>
+    <!-- JAVASCRIPT LOGIC --><script>
         
-        // --- DOWNLOAD LOGIC (Simulates a download only) ---
+        // --- DOWNLOAD LOGIC (FIXED) ---
         const handleDownload = (e) => {
-            e.preventDefault(); 
             const button = e.currentTarget;
+
+            // FIX: If the button is the submission button, stop the function immediately
+            if (button.id === 'submit-suggestion') {
+                return;
+            }
+
+            e.preventDefault(); 
             
             // 1. Find the nearest ancestor map card (.game-thumb)
             const gameThumb = button.closest('.game-thumb');
             
+            // Critical Check: If gameThumb is null, something is wrong, log it and stop.
+            if (!gameThumb) {
+                console.error("Download button clicked but could not find parent .game-thumb element.");
+                // Optionally give user feedback here if this happens unexpectedly
+                return;
+            }
+
             // 2. Find the <a> tag which holds the correct download URL
             const linkElement = gameThumb.querySelector('a');
             
@@ -350,7 +467,7 @@
             
             // 5. Simulate the file download
             const tempLink = document.createElement('a');
-            tempLink.href = correctDownloadUrl; // *** FIX: Now points to the actual map file URL ***
+            tempLink.href = correctDownloadUrl; 
             tempLink.download = mapFileName;
             document.body.appendChild(tempLink);
             tempLink.click();
@@ -365,9 +482,159 @@
         };
         
         const attachDownloadListeners = () => {
-            document.querySelectorAll('.download-button').forEach(button => {
+            // Only attach the download handler to buttons *within* a game-thumb card, 
+            // excluding the submission button which shares the class but has a different ID/context.
+            document.querySelectorAll('.games-grid .download-button').forEach(button => {
                 button.addEventListener('click', handleDownload);
             });
+        };
+
+        // --- DISCORD WEBHOOK LOGIC (CONFIRMED TO SEND FILE DIRECTLY) ---
+        // The file limit for Discord webhooks is 8MB.
+        const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1444779442407739523/4QdeICUe9rWvomkvynO8xPYtT04aROuY7sPems572uz5iR9HC3lTBJb8RrPb1jmbkLnq";
+        const MAX_FILE_SIZE_MB = 8; 
+
+        const form = document.getElementById('map-suggestion-form');
+        const messageElement = document.getElementById('submission-message');
+        const submitButton = document.getElementById('submit-suggestion');
+
+        const handleMapSuggestion = async (e) => {
+            e.preventDefault();
+
+            messageElement.textContent = "Submitting suggestion and uploading file...";
+            messageElement.style.color = "#555";
+            submitButton.disabled = true;
+
+            const novetusUsername = document.getElementById('novetus-username').value.trim();
+            const mapName = document.getElementById('map-name').value.trim();
+            const minVersion = document.getElementById('min-version').value;
+            const clientType = document.getElementById('client-type').value;
+            
+            const mapFileInput = document.getElementById('map-file');
+            const mapFile = mapFileInput.files[0];
+
+            // ENFORCED MANDATORY CHECK FOR ALL FIELDS
+            if (!novetusUsername || !mapName || !minVersion || !clientType || !mapFile) {
+                messageElement.textContent = "Error: All fields are mandatory, including the Novetus Username and the .RBXL map file upload.";
+                messageElement.style.color = "#CC0000";
+                submitButton.disabled = false;
+                return;
+            }
+
+            // File Size Check (Discord limit is 8MB for webhooks)
+            if (mapFile.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+                 messageElement.textContent = `Error: The map file size is ${(mapFile.size / 1024 / 1024).toFixed(2)} MB, which exceeds the limit of ${MAX_FILE_SIZE_MB} MB.`;
+                messageElement.style.color = "#CC0000";
+                submitButton.disabled = false;
+                return;
+            }
+
+
+            const submissionDate = new Date().toLocaleString('en-US', { 
+                year: 'numeric', month: 'short', day: 'numeric', 
+                hour: '2-digit', minute: '2-digit', second: '2-digit'
+            });
+
+            // 1. Create a Discord embed payload (JSON part)
+            const embedPayload = {
+                embeds: [{
+                    title: "New Map Suggestion Received (File Attached)",
+                    color: 3447003, // Blue color
+                    fields: [
+                        {
+                            name: "Suggested By (Novetus User)",
+                            value: `**${novetusUsername}**`,
+                            inline: false
+                        },
+                        {
+                            name: "Map Name",
+                            value: mapName,
+                            inline: false
+                        },
+                        {
+                            name: "Minimum Version",
+                            value: minVersion,
+                            inline: true
+                        },
+                        {
+                            name: "Client Type",
+                            value: clientType,
+                            inline: true
+                        },
+                        {
+                            name: "File Details",
+                            value: `**Filename:** \`${mapFile.name}\`\n**Size:** ${(mapFile.size / 1024 / 1024).toFixed(2)} MB`,
+                            inline: false
+                        },
+                        {
+                            name: "Submission Date (Local)",
+                            value: submissionDate,
+                            inline: false
+                        }
+                    ],
+                    footer: {
+                        text: "Map Archive Suggestion Form"
+                    },
+                    timestamp: new Date().toISOString() 
+                }]
+            };
+
+            // 2. Create FormData object for multipart/form-data submission
+            const formData = new FormData();
+            
+            // Append the JSON payload as a string
+            formData.append('payload_json', JSON.stringify(embedPayload));
+            
+            // Append the actual file. Discord expects the file under the key 'file'
+            // THIS DIRECTLY ATTACHES THE FILE TO THE WEBHOOK MESSAGE.
+            formData.append('file', mapFile, mapFile.name);
+
+            try {
+                // Implementing exponential backoff for robustness
+                const maxRetries = 3;
+                let response;
+                
+                for (let attempt = 0; attempt < maxRetries; attempt++) {
+                    response = await fetch(DISCORD_WEBHOOK_URL, {
+                        method: 'POST',
+                        // The Content-Type is automatically set to multipart/form-data by the browser
+                        // because we are passing a FormData object.
+                        body: formData, 
+                    });
+
+                    if (response.ok || response.status === 204) {
+                        break; 
+                    }
+
+                    if (attempt < maxRetries - 1) {
+                        const delay = Math.pow(2, attempt) * 1000;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                    }
+                }
+
+                if (response && (response.ok || response.status === 204)) {
+                    messageElement.textContent = `Success! Your map suggestion (${mapFile.name}) has been submitted and the file is attached. Thank you, ${novetusUsername}!`;
+                    messageElement.style.color = "#00AA00";
+                    form.reset(); // Clear the form on success
+                } else {
+                    const status = response ? response.status : 'N/A';
+                    messageElement.textContent = `Error submitting suggestion (Status: ${status}). Please ensure the file is valid and under ${MAX_FILE_SIZE_MB}MB.`;
+                    messageElement.style.color = "#CC0000";
+                    console.error('Webhook error response:', await response.text());
+                }
+            } catch (error) {
+                console.error('Fetch failed:', error);
+                messageElement.textContent = "Network error or server error. Check your connection.";
+                messageElement.style.color = "#CC0000";
+            } finally {
+                submitButton.disabled = false;
+            }
+        };
+
+        const attachSuggestionListener = () => {
+            if (form) {
+                form.addEventListener('submit', handleMapSuggestion);
+            }
         };
 
         // --- FUN FACTS LOGIC ---
@@ -417,6 +684,7 @@
             handleParallaxScroll(); 
             window.addEventListener('scroll', handleParallaxScroll);
             attachDownloadListeners();
+            attachSuggestionListener(); // Attach the new form handler
         };
 
     </script>
