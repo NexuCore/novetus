@@ -67,7 +67,7 @@
             padding: 10px 0;
         }
 
-        /* Header / Navigation Bar */
+        /* Header / Navigation Bar (Desktop Default) */
         #header {
             background-color: #FFFFFF;
             border: 1px solid #AFAFAF;
@@ -221,6 +221,45 @@
             margin-top: 10px; /* Space above footer */
         }
 
+        /* --- MOBILE RESPONSIVENESS FIXES --- */
+        @media (max-width: 600px) {
+            
+            /* Header Layout Fix: Allow wrapping and center content */
+            #header {
+                flex-wrap: wrap; 
+                justify-content: center; /* Center everything */
+                padding: 8px 5px; /* Adjust padding for tight screen */
+            }
+            
+            /* Force Logo/Header Link to take full width and center it */
+            .header-logo {
+                width: 100%; /* Take up a full line */
+                text-align: center;
+                padding-right: 0;
+                margin-bottom: 5px; /* Space before links start */
+            }
+            
+            .header-logo img {
+                 height: 40px; /* Slightly increase logo size for touch target */
+            }
+
+            /* Adjust navigation link spacing for the row below the logo */
+            #header a:not(.header-logo) {
+                margin: 0 5px; /* Reduce horizontal margin */
+                font-size: 9pt;
+            }
+            
+            /* Adjust padding on footer for mobile screens */
+            #footer {
+                padding: 10px 5px;
+            }
+            
+            /* Center the map cards if only one is showing (which is unlikely but safe) */
+            .games-grid {
+                 justify-content: center;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -323,13 +362,12 @@
         // --- FUN FACTS LOGIC ---
         const sillyFacts = [
             "The opposite of vanilla is chocolate.",
-            "Life is Novetus",
-            "Most recommended version to play on is 2011M",
-            "i lov roblo",
-            "this website was made by XxTHeUltimatePwnerxX",
-            "roblox used to have tix instead of bobux",
-            "build something! in notevus i guess...",
-            "roblox.com but... retro version!"
+            "The 2007 client had a sound effect for when a player walked over grass that nobody could ever find in the assets.",
+            "Did you know the official name for a Robloxian is 'Blockhead'?",
+            "The Novetus client used to include a joke map based on a famous internet meme!",
+            "In early versions, pressing 'F3' would instantly crash the game client. Don't try it!",
+            "The first version of the 'Crossroads' map only had 10 bricks, but they were very important bricks.",
+            "The 'Noob' skin texture is technically called 'Teal'."
         ];
 
         const factDisplayElement = document.getElementById('fact-display');
