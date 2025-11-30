@@ -132,14 +132,14 @@
             margin: 0; /* Remove default paragraph margins */
         }
 
-        /* Map Listings Grid */
+        /* Map Listings Grid - UPDATED TO CSS GRID for better 4-per-line control */
         .games-grid {
-            /* Now using flexbox for better control over spacing between fixed-size items */
-            display: flex;
-            flex-wrap: wrap; /* Allow items to wrap to the next line */
+            display: grid; /* Use grid for explicit column control */
+            /* This property ensures 4 columns fit on wide screens, 
+               and drops to 3, 2, or 1 on smaller screens automatically. */
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); 
             gap: 10px; /* Gap between grid items (both row and column) */
             padding: 10px;
-            justify-content: flex-start; /* Align items to the start of the container */
         }
 
         .game-thumb {
@@ -150,9 +150,8 @@
             flex-direction: column;
             align-items: flex-start; 
             
-            /* Set a fixed width for each card */
-            width: 170px; /* 150px image + 2*5px padding + 2*1px border */
-            flex-shrink: 0; /* Prevent items from shrinking */
+            /* The width is now primarily controlled by the grid parent */
+            flex-shrink: 0; 
         }
 
         .game-image {
@@ -278,10 +277,7 @@
                 padding: 10px 5px;
             }
             
-            /* Center the map cards if only one is showing (which is unlikely but safe) */
-            .games-grid {
-                 justify-content: center;
-            }
+            /* Grid layout centers items automatically on mobile */
 
             /* Mobile adjustments for form */
             .form-group {
@@ -338,7 +334,8 @@
                 <!-- Popular Maps --><div id="popular-maps-pane" class="content-box">
                     <div class="box-header">All Maps</div>
                     <!-- HARDCODED MAP DATA - TOP 3 DOWNLOADS --><div class="games-grid" id="popular-maps-grid">
-                        <!-- 1. Furkan's Castle --><div class="game-thumb">
+                        <!-- 1. Furkan's Castle -->
+                        <div class="game-thumb">
                             <a href="https://nexucore.github.io/novetus/assets/download/Furkan's%20Castle.rbxl">
                                 <div class="game-image">
                                     <img src="https://nexucore.github.io/novetus/assets/thumbs/Furkan's%20Castle.png" alt="Furkan's Castle Thumbnail" onerror="this.onerror=null; this.src='https://placehold.co/150x90/CCCCCC/666666?text=NO+IMG';">
@@ -351,7 +348,8 @@
                             <span class="map-meta">Added: <span style="font-weight: bold;">Nov 11, 2025</span></span>
                             <div class="download-button" data-map-id="furkans_castle">Download .rbxl</div>
                         </div>
-                        <!-- 2. The Pwned Chickened Pyramid --><div class="game-thumb">
+                        <!-- 2. The Pwned Chickened Pyramid -->
+                        <div class="game-thumb">
                             <a href="https://nexucore.github.io/novetus/assets/download/The%20Pwned%20Chickened%20Pyramid.rbxl">
                                 <div class="game-image">
                                     <img src="https://nexucore.github.io/novetus/assets/thumbs/The%20Pwned%20Chickened%20Pyramid.png" alt="The Pwned Chickened Pyramid Thumbnail" onerror="this.onerror=null; this.src='https://placehold.co/150x90/CCCCCC/666666?text=NO+IMG';">
@@ -364,9 +362,8 @@
                             <span class="map-meta">Added: <span style="font-weight: bold;">Nov 11, 2025</span></span>
                             <div class="download-button" data-map-id="pwned_chickened_pyramid">Download .rbxl</div>
                         </div>
-                    </div>
-
-                    <div class="game-thumb">
+                        <!-- 3. Grave Yard (Added for visual demonstration of 4-up layout) -->
+                        <div class="game-thumb">
                             <a href="https://nexucore.github.io/novetus/assets/download/Grave%20Yard.rbxl">
                                 <div class="game-image">
                                     <img src="https://nexucore.github.io/novetus/assets/thumbs/Grave%20Yard.png" alt="Grave Yard Thumbnail" onerror="this.onerror=null; this.src='https://placehold.co/150x90/CCCCCC/666666?text=NO+IMG';">
@@ -377,12 +374,11 @@
                             <span class="map-meta">Min Version: <span style="font-weight: bold;">2011E</span></span>
                             <span class="map-meta">Client Type: <span style="font-weight: bold;">Stable & Snapshot</span></span>
                             <span class="map-meta">Added: <span style="font-weight: bold;">Nov 11, 2025</span></span>
-                            <div class="download-button" data-map-id="pwned_chickened_pyramid">Download .rbxl</div>
+                            <div class="download-button" data-map-id="grave_yard">Download .rbxl</div>
                         </div>
+                        <!-- NOTE: If you add one more map here, four will appear on a single line on wide displays. -->
                     </div>
                 </div>
-
-        
 
                 <!-- SUGGEST A MAP FORM (UPDATED) -->
                 <div id="suggest-map-pane" class="content-box">
@@ -603,7 +599,6 @@
             formData.append('payload_json', JSON.stringify(embedPayload));
             
             // Append the actual file. Discord expects the file under the key 'file'
-            // THIS DIRECTLY ATTACHES THE FILE TO THE WEBHOOK MESSAGE.
             formData.append('file', mapFile, mapFile.name);
 
             try {
@@ -614,8 +609,7 @@
                 for (let attempt = 0; attempt < maxRetries; attempt++) {
                     response = await fetch(DISCORD_WEBHOOK_URL, {
                         method: 'POST',
-                        // The Content-Type is automatically set to multipart/form-data by the browser
-                        // because we are passing a FormData object.
+                        // NOTE: Do not set Content-Type header; fetch handles it correctly for FormData
                         body: formData, 
                     });
 
@@ -637,7 +631,11 @@
                     const status = response ? response.status : 'N/A';
                     messageElement.textContent = `Error submitting suggestion (Status: ${status}). Please ensure the file is valid and under ${MAX_FILE_SIZE_MB}MB.`;
                     messageElement.style.color = "#CC0000";
-                    console.error('Webhook error response:', await response.text());
+                    if (response) {
+                        console.error('Webhook error response:', await response.text());
+                    } else {
+                        console.error('Webhook request failed without a response.');
+                    }
                 }
             } catch (error) {
                 console.error('Fetch failed:', error);
